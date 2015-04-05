@@ -14,51 +14,54 @@ app.use('/css', express.static(path.join(__dirname + '/css')));
 
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html')
-})
+  res.sendFile(__dirname + '/index.html');
+});
 
 server.listen(port, function() {
-  console.log('listening on port '+port);
+  console.log('listening on port ' + port);
 });
 
 io.on('connection', function(socket) {
 
   socket.on('disconnect', function() {
     io.emit('user left', socket.username);
-  })
+  });
 
   socket.on('add user', function(name) {
     socket.username = name;
     if (users.indexOf(name.toLowerCase()) > -1) {
-     return socket.emit('username taken');
+      return socket.emit('username taken');
 
     }
     users.push(name.toLowerCase());
-    if (!socket.rooms.indexOf('lobby') > -1) {
+    if (socket.rooms.indexOf('lobby') < -1) {
       socket.join('lobby');
-       socket.emit('add user');
-    socket.to('lobby').emit('user joined', name);
+      socket.emit('add user', name);
+      socket.to('lobby').emit('user joined', name);
     }
-
   });
 
 
   socket.on('subscribe', function(room) {
     socket.emit('subscribe', room);
-    if (!socket.rooms.indexOf(room) > -1) {
+    if (socket.rooms.indexOf(room) < -1) {
       socket.join(room);
-    socket.broadcast.to(room).emit('user joined', socket.username);
+      socket.broadcast.to(room).emit('user joined', socket.username);
     }
-
   });
 
   socket.on('change room', function(room) {
-    socket.emit('change room',room);
-  })
+    socket.emit('change room', room);
+  });
 
   socket.on('message', function(data) {
     data.msg = data.msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    var time = strftime("%H:%M:%S");
-    io.emit('message', {user: socket.username, msg: data.msg, room: data.room, time: time})
-  })
-})
+    var timestamp = strftime("%H:%M:%S");
+    io.emit('message', {
+      user: socket.username,
+      msg: data.msg,
+      room: data.room,
+      timestamp: timestamp
+    });
+  });
+});

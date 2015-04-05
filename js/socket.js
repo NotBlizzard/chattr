@@ -1,16 +1,14 @@
-
-
 var socket = io();
-
 var roomMessages = {};
 
 $(document).ready(function() {
-
+  var div = $('#room');
+  div.scrollTop = div.scrollHeight;
   $(document).on('click', '.room', function(event) {
     $('#room_tabs>div').removeClass('focus');
     $('#'+event.target.id).addClass('focus');
     socket.emit('change room', event.target.id);
-  })
+  });
 
   $('#message').keypress(function(e) {
     if (e.which == 13) {
@@ -27,17 +25,17 @@ $(document).ready(function() {
       socket.emit('subscribe', room);
     } else {
       $('#message').val('');
-      var room = $('#room_tabs').data('currentroom');
-      socket.emit('message', {msg: msg, room: room});
+      var new_room = $('#room_tabs').data('currentroom');
+      socket.emit('message', {msg: msg, room: new_room});
     }
-  })
-})
+  });
+});
 
-socket.on('add user', function() {
+socket.on('add user', function(name) {
   $("#room_tabs").data('currentroom', 'lobby');
-  $('#room_tabs').append('<div class="room focus" id="lobby">lobby</div>')
-})
-
+  $('#room_tabs').append('<div class="room focus" id="lobby">lobby</div>');
+  $('#username').val(name);
+});
 
 socket.on('subscribe', function(room) {
   $('#room_tabs').data('currentroom', room);
@@ -49,31 +47,37 @@ socket.on('connect', function() {
 });
 
 socket.on('username taken', function() {
-  socket.emit('add user', prompt('The name is already taken. choose another username.'))
-})
+  socket.emit('add user', prompt('The name is already taken. choose another username.'));
+});
 
 socket.on('change room', function(room) {
   $('#messages').html('');
+  var msgs;
   try {
-    var msgs = roomMessages[room].join('');
+    msgs = roomMessages[room].join('');
   } catch (e) {
-    var msgs = '';
+    msgs = '';
   }
   $('#messages').append(msgs);
-
 });
 
 socket.on('user joined', function(name) {
-  $('#messages').append('<p id="joinleave">' + name + ' joined</p>');
+  var msg = "<p id='joinleave'>"+ name +" joined</p>";
+  $('#messages').append(msg);
+  roomMessages[room] = roomMessages[room] || [];
+  roomMessages[room].push(msg);
 });
 
 socket.on('user left', function(name) {
-  $('#messages').append('<p id="joinleave">'+ name +' left</p>');
+  var msg = "<p id='joinleave'>"+ name +" left</p>";
+  $('#messages').append(msg);
+  roomMessages[room] = roomMessages[room] || [];
+  roomMessages[room].push(msg);
 });
 
 socket.on('message', function(data) {
   var room = $('#room_tabs').data('currentroom');
-  var message = '<p>['+data['time']+'] ' +data.user + ': ' + data.msg + '</p>';
+  var message = '<p>['+data.timestamp+'] ' +data.user + ': ' + data.msg + '</p>';
   roomMessages[room] = roomMessages[room] || [];
   roomMessages[room].push(message);
   $('#messages').append(message);
