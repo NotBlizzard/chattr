@@ -1,3 +1,5 @@
+
+
 var socket = io();
 
 var roomMessages = {};
@@ -71,7 +73,7 @@ socket.on('user left', function(name) {
 
 socket.on('message', function(data) {
   var room = $('#room_tabs').data('currentroom');
-  var message = '<p>'+data.user + ': ' + data.msg + '</p>';
+  var message = '<p>['+data['time']+'] ' +data.user + ': ' + data.msg + '</p>';
   roomMessages[room] = roomMessages[room] || [];
   roomMessages[room].push(message);
   $('#messages').append(message);

@@ -3,9 +3,11 @@ var app = express();
 var path = require('path');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var strftime = require('strftime');
 
 var users = [];
 var usercount = 0;
+
 
 app.use('/js', express.static(path.join(__dirname + '/js')));
 app.use('/css', express.static(path.join(__dirname + '/css')));
@@ -28,22 +30,26 @@ io.on('connection', function(socket) {
   socket.on('add user', function(name) {
     socket.username = name;
     if (users.indexOf(name.toLowerCase()) > -1) {
-      socket.emit('username taken');
+     return socket.emit('username taken');
+
     }
     users.push(name.toLowerCase());
-    socket.join('lobby');
-    socket.emit('add user');
+    if (!socket.rooms.indexOf('lobby') > -1) {
+      socket.join('lobby');
+       socket.emit('add user');
     socket.to('lobby').emit('user joined', name);
+    }
+
   });
 
 
   socket.on('subscribe', function(room) {
     socket.emit('subscribe', room);
-    if (socket.rooms.indexOf(room) > -1) {
-      return false;
-    }
-    socket.join(room);
+    if (!socket.rooms.indexOf(room) > -1) {
+      socket.join(room);
     socket.broadcast.to(room).emit('user joined', socket.username);
+    }
+
   });
 
   socket.on('change room', function(room) {
@@ -52,6 +58,7 @@ io.on('connection', function(socket) {
 
   socket.on('message', function(data) {
     data.msg = data.msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    io.emit('message', {user: socket.username, msg: data.msg, room: data.room, time: Date.now()})
+    var time = strftime("%H:%M:%S");
+    io.emit('message', {user: socket.username, msg: data.msg, room: data.room, time: time})
   })
 })
