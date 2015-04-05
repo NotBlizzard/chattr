@@ -7,7 +7,7 @@ var strftime = require('strftime');
 
 var users = [];
 var usercount = 0;
-
+var port = process.env.PORT || 8080;
 
 app.use('/js', express.static(path.join(__dirname + '/js')));
 app.use('/css', express.static(path.join(__dirname + '/css')));
@@ -17,8 +17,8 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html')
 })
 
-server.listen(4000, function() {
-  console.log('listening on port 4000')
+server.listen(port, function() {
+  console.log('listening on port '+port);
 });
 
 io.on('connection', function(socket) {
