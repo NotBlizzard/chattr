@@ -25,28 +25,33 @@ io.on('connection', function(socket) {
     io.emit('user left', socket.username);
   })
 
-
   socket.on('add user', function(name) {
     socket.username = name;
-
-    users.push(user);
+    if (users.indexOf(name.toLowerCase()) > -1) {
+      socket.emit('username taken');
+    }
+    users.push(name.toLowerCase());
     socket.join('lobby');
-    socket.emit('subscribe', 'lobby')
+    socket.emit('add user');
     socket.to('lobby').emit('user joined', name);
   });
 
 
   socket.on('subscribe', function(room) {
     socket.emit('subscribe', room);
+    if (socket.rooms.indexOf(room) > -1) {
+      return false;
+    }
     socket.join(room);
-    socket.broadcast.to(room).emit('user joined', socket.rooms);
+    socket.broadcast.to(room).emit('user joined', socket.username);
   });
 
   socket.on('change room', function(room) {
-    io.emit('change room',room);
+    socket.emit('change room',room);
   })
 
   socket.on('message', function(data) {
-    io.emit('message', {user: socket.username, msg: data.msg, room: data.room})
+    data.msg = data.msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    io.emit('message', {user: socket.username, msg: data.msg, room: data.room, time: Date.now()})
   })
 })
