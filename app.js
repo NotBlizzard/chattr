@@ -24,6 +24,7 @@ server.listen(port, function() {
 io.on('connection', function(socket) {
 
   socket.on('disconnect', function() {
+    users.pop(socket.username.toLowerCase());
     io.emit('user left', socket.username);
   });
 
