@@ -35,7 +35,7 @@ $(document).ready(function() {
       socket.emit('message', {
         msg: msg,
         room: $('#room_tabs').data('currentroom'),
-        timestamp: Date.now
+        timestamp: new Date
       });
     }
   });
