@@ -108,7 +108,7 @@ socket.on('user joined room', function(data) {
 socket.on('user left room', function(data) {
   var msg = "<p id='joinleave'>" + data.nick + " left</p>";
   $('#messages').append(msg);
-  roomMessages[data.room] = roomMessages[room] || [];
+  roomMessages[data.room] = roomMessages[dataroom] || [];
   roomMessages[data.room].push(msg);
 });
 
@@ -117,7 +117,7 @@ socket.on('user left room', function(data) {
 
 socket.on('message', function(data) {
   var message = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
-  roomMessages[room] = roomMessages[room] || [];
-  roomMessages[room].push(message);
+  roomMessages[data.room] = roomMessages[data.room] || [];
+  roomMessages[data.room].push(message);
   $('#messages').append(message);
 });
