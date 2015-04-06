@@ -1,6 +1,6 @@
 var socket = io();
 var roomMessages = {};
-var w = document.getElementById("room");
+var w = document.getElementByClassName("room");
 w.scrollTop = w.scrollHeight;
 
 $(document).ready(function() {
