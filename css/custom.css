@@ -13,8 +13,11 @@ body {
   width: 700px;
   position: relative;
   background-color: white;
-  overflow: auto; }
+  overflow-y: auto;}
 
+label {
+  display: inline-block;
+}
 #chat {
   width: 700px;
   height: 500px; }
