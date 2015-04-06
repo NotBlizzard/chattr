@@ -1,4 +1,6 @@
 var express = require('express');
+var ColorHash = require('color-hash');
+var md5 = require("MD5");
 var app = express();
 var path = require('path');
 var server = require('http').Server(app);
@@ -6,7 +8,6 @@ var io = require('socket.io')(server);
 var strftime = require('strftime');
 
 var users = [];
-var usercount = 0;
 var port = process.env.PORT || 8080;
 
 app.use('/js', express.static(path.join(__dirname + '/js')));
@@ -31,15 +32,15 @@ io.on('connection', function(socket) {
   socket.on('add user', function(name) {
     socket.username = name;
     if (users.indexOf(name.toLowerCase()) > -1) {
-      return socket.emit('username taken');
-
+      socket.emit('username taken');
     }
     users.push(name.toLowerCase());
-    if (socket.rooms.indexOf('lobby') < -1) {
+    if (!socket.rooms.indexOf('lobby') > -1) {
       socket.join('lobby');
-      socket.emit('add user', name);
-      socket.to('lobby').emit('user joined', name);
     }
+    socket.emit('add user', name);
+    socket.to('lobby').emit('user joined', name);
+
   });
 
 
@@ -58,10 +59,12 @@ io.on('connection', function(socket) {
   socket.on('message', function(data) {
     data.msg = data.msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     var timestamp = strftime("%H:%M:%S");
+    var colour = md5(socket.username).substr(0,6);
     io.emit('message', {
       user: socket.username,
       msg: data.msg,
       room: data.room,
+      colour: colour,
       timestamp: timestamp
     });
   });

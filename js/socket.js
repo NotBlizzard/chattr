@@ -2,8 +2,6 @@ var socket = io();
 var roomMessages = {};
 
 $(document).ready(function() {
-  var div = $('#room');
-  div.scrollTop = div.scrollHeight;
   $(document).on('click', '.room', function(event) {
     $('#room_tabs>div').removeClass('focus');
     $('#'+event.target.id).addClass('focus');
@@ -11,7 +9,7 @@ $(document).ready(function() {
   });
 
   $('#message').keypress(function(e) {
-    if (e.which == 13) {
+    if (e.which === 13) {
       $('#send').click();
     }
   });
@@ -21,14 +19,17 @@ $(document).ready(function() {
     if (msg === '') return false;
     if (msg.substr(0, 5) === '/join') {
       var room = msg.split('/join ')[1];
-      $('#message').val('');
-      socket.emit('subscribe', room);
-    } else {
-      $('#message').val('');
-      var new_room = $('#room_tabs').data('currentroom');
-      socket.emit('message', {msg: msg, room: new_room});
-    }
+  $('#message').val('');
+  socket.emit('subscribe', room);
+} else {
+  $('#message').val('');
+  var new_room = $('#room_tabs').data('currentroom');
+  socket.emit('message', {
+    msg: msg,
+    room: new_room
   });
+}
+});
 });
 
 socket.on('add user', function(name) {
@@ -62,22 +63,22 @@ socket.on('change room', function(room) {
 });
 
 socket.on('user joined', function(name) {
-  var msg = "<p id='joinleave'>"+ name +" joined</p>";
+  var msg = "<p id='joinleave'>" + name + " joined</p>";
   $('#messages').append(msg);
   roomMessages[room] = roomMessages[room] || [];
   roomMessages[room].push(msg);
 });
 
 socket.on('user left', function(name) {
-  var msg = "<p id='joinleave'>"+ name +" left</p>";
-  $('#messages').append(msg);
-  roomMessages[room] = roomMessages[room] || [];
-  roomMessages[room].push(msg);
+      var msg = "<p id='joinleave'>" + name + " left</p>";
+      $('#messages').append(msg);
+      roomMessages[room] = roomMessages[room] || [];
+      roomMessages[room].push(msg);
 });
 
 socket.on('message', function(data) {
   var room = $('#room_tabs').data('currentroom');
-  var message = '<p>['+data.timestamp+'] ' +data.user + ': ' + data.msg + '</p>';
+  var message = '<p>['+data.timestamp+'] <span style="color:#'+data.colour+';"><strong>' +data.user + '</strong></span>: ' + data.msg + '</p>';
   roomMessages[room] = roomMessages[room] || [];
   roomMessages[room].push(message);
   $('#messages').append(message);
