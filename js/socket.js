@@ -114,7 +114,7 @@ socket.on('user left room', function(data) {
  */
 
 socket.on('message', function(data) {
-  var message = '<p>[' + moment().format() + '] <span style="color:#' + data.colour + ';"><strong>' + data.user + '</strong></span>: ' + data.msg + '</p>';
+  var message = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + data.colour + ';"><strong>' + data.user + '</strong></span>: ' + data.msg + '</p>';
   roomMessages[room] = roomMessages[room] || [];
   roomMessages[room].push(message);
   $('#messages').append(message);
