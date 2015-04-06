@@ -33,6 +33,8 @@ io.on('connection', function(socket) {
     socket.username = name;
     if (users.indexOf(name.toLowerCase()) > -1) {
       socket.emit('username taken');
+    } else if (name.length === 0 || !name) {
+      socket.emit('no username');
     }
     users.push(name.toLowerCase());
     if (!socket.rooms.indexOf('lobby') > -1) {

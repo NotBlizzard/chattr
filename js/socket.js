@@ -51,6 +51,10 @@ socket.on('username taken', function() {
   socket.emit('add user', prompt('The name is already taken. choose another username.'));
 });
 
+socket.on('no username', function() {
+  socket.emit('add user', prompt('Your username can not be blank. choose another username.'))
+});
+
 socket.on('change room', function(room) {
   $('#messages').html('');
   var msgs;
