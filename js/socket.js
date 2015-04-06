@@ -2,6 +2,8 @@ var socket = io();
 var roomMessages = {};
 
 $(document).ready(function() {
+  $('#room').scrollTop = $("#room").scrollHeight;
+
 
   $(document).on('click', '.room', function(event) {
     $('#room_tabs>div').removeClass('focus');
@@ -97,14 +99,14 @@ socket.on('unsubscribe', function(room) {
 })
 
 socket.on('user joined room', function(data) {
-  var msg = "<p id='joinleave'>" + data.user + " joined</p>";
+  var msg = "<p id='joinleave'>" + data.nick + " joined</p>";
   $('#messages').append(msg);
   roomMessages[data.room] = roomMessages[data.room] || [];
   roomMessages[data.room].push(msg);
 });
 
 socket.on('user left room', function(data) {
-  var msg = "<p id='joinleave'>" + data.user + " left</p>";
+  var msg = "<p id='joinleave'>" + data.nick + " left</p>";
   $('#messages').append(msg);
   roomMessages[data.room] = roomMessages[room] || [];
   roomMessages[data.room].push(msg);
@@ -114,7 +116,7 @@ socket.on('user left room', function(data) {
  */
 
 socket.on('message', function(data) {
-  var message = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + data.colour + ';"><strong>' + data.user + '</strong></span>: ' + data.msg + '</p>';
+  var message = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
   roomMessages[room] = roomMessages[room] || [];
   roomMessages[room].push(message);
   $('#messages').append(message);

@@ -38,11 +38,12 @@ io.on('connection', function(socket) {
     if (!socket.rooms.indexOf('lobby') > -1) {
       socket.join('lobby');
     }
-    socket.username = name;
+    socket.nick = name;
+    console.log("NAME IS NOW "+socket.nick+" WHICH IS "+name);
     socket.emit('subscribe', 'lobby');
     socket.emit('pick username', name);
-    socket.broadcast.to('lobby').emit('user joined room', {
-      name: socket.username,
+    socket.to('lobby').emit('user joined room', {
+      nick: socket.nick,
       room: 'lobby'
     });
 
@@ -50,14 +51,14 @@ io.on('connection', function(socket) {
 
   socket.on('disconnect', function() {
     try {
-      users.pop(socket.username.toLowerCase());
+      users.pop(socket.nick.toLowerCase());
     } catch (e) {
       //the user never picked a name, and disconnected.
     }
-    for (var room in socket.rooms) {
-      socket.broadcast.to(room).emit('user left room', {
-        user: socket.username,
-        room: room
+    for (var i = 0; i < socket.rooms.length; i++) {
+      socket.to(room).emit('user left room', {
+        nick: socket.nick,
+        room: socket.rooms[i]
       })
     }
   });
@@ -69,8 +70,9 @@ io.on('connection', function(socket) {
     socket.emit('subscribe', room);
     if (socket.rooms.indexOf(room) < -1) {
       socket.join(room);
-      socket.broadcast.to(room).emit('user joined room', {
-        user: socket.username,
+      console.log('nick is '+socket.nick)
+      socket.to(room).emit('user joined room', {
+        nick: socket.nick,
         room: room
       });
     }
@@ -78,8 +80,8 @@ io.on('connection', function(socket) {
 
   socket.on('unsubscribe', function(room) {
     socket.leave(room);
-    socket.broadcast.to(room).emit('user left room', {
-      user: socket.username,
+    socket.to(room).emit('user left room', {
+      nick: socket.nick,
       room: room
     });
   });
@@ -90,15 +92,15 @@ io.on('connection', function(socket) {
 
   //When the user sends a message.
   socket.on('message', function(data) {
-    if (!socket.username) {
+    if (!socket.nick) {
       socket.emit('no username');
     }
     if (socket.rooms.length == 0) {
       socket.emit('no rooms');
     }
-    var colour = md5(socket.username).substr(0, 6);
+    var colour = md5(socket.nick).substr(0, 6);
     io.emit('message', {
-      user: socket.username,
+      nick: socket.nick,
       msg: data.msg,
       room: data.room,
       colour: colour
