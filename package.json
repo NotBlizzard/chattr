@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/notblizzard/chattr",
   "dependencies": {
+    "MD5": "^1.2.1",
     "color-hash": "^1.0.2",
     "express": "^4.12.3",
     "socket.io": "^1.3.5",
