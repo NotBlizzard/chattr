@@ -34,8 +34,7 @@ $(document).ready(function() {
       $('#message').val('');
       socket.emit('message', {
         msg: msg,
-        room: $('#room_tabs').data('currentroom'),
-        timestamp: new Date
+        room: $('#room_tabs').data('currentroom')
       });
     }
   });
@@ -115,7 +114,7 @@ socket.on('user left room', function(data) {
  */
 
 socket.on('message', function(data) {
-  var message = '<p>[' + data.timestamp + '] <span style="color:#' + data.colour + ';"><strong>' + data.user + '</strong></span>: ' + data.msg + '</p>';
+  var message = '<p>[' + moment().format() + '] <span style="color:#' + data.colour + ';"><strong>' + data.user + '</strong></span>: ' + data.msg + '</p>';
   roomMessages[room] = roomMessages[room] || [];
   roomMessages[room].push(message);
   $('#messages').append(message);

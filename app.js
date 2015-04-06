@@ -5,7 +5,6 @@ var app = express();
 var path = require('path');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var strftime = require('strftime');
 
 var users = [];
 var port = process.env.PORT || 8080;
@@ -94,8 +93,6 @@ io.on('connection', function(socket) {
     if (!socket.username) {
       socket.emit('no username');
     }
-    data.msg = data.msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    var timestamp = strftime("%H:%M:%S", data.timestamp);
     if (socket.rooms.length == 0) {
       socket.emit('no rooms');
     }
@@ -104,8 +101,7 @@ io.on('connection', function(socket) {
       user: socket.username,
       msg: data.msg,
       room: data.room,
-      colour: colour,
-      timestamp: timestamp
+      colour: colour
     });
   });
 });
