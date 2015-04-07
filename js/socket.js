@@ -69,6 +69,10 @@ socket.on('no username', function() {
   socket.emit('pick username', prompt('Your username can not be blank. choose another username.'));
 });
 
+socket.on('bad username', function() {
+  socket.emit('pick username', prompt("That name contains a bad word. pick another username."));
+});
+
 /* When the user changes rooms.
  */
 

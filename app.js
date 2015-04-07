@@ -17,9 +17,9 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-server.listen(port, function() {
-  console.log('listening on port ' + port);
-});
+server.listen(port);//, function() {
+  //console.log('listening on port ' + port);
+//});
 
 io.on('connection', function(socket) {
 
@@ -99,6 +99,7 @@ io.on('connection', function(socket) {
       socket.emit('no rooms');
     }
     data.msg = data.msg.replace("<", "&lt;").replace(">", "&gt;");
+    data.nick = data.nick.replace("<", "&lt;").replace(">", "&gt;");
     var colour = md5(socket.nick).substr(0, 6);
     io.emit('message', {
       nick: socket.nick,
