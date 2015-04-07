@@ -2,11 +2,13 @@ var socket = io();
 var roomMessages = {};
 
 
-
 $(document).ready(function() {
+  setInterval(function() {
+    var w = document.getElementById("room");
+    w.scrollTop = w.scrollHeight;
+  }, 100);
 
-  var w = document.getElementById("room");
-  w.scrollTop = w.scrollHeight;
+
 
   $(document).on('click', '.room', function(event) {
     $('#room_tabs>div').removeClass('focus');
@@ -28,7 +30,7 @@ $(document).ready(function() {
   $('#send').click(function() {
     var msg = $('#message').val();
     if (msg === '') return false;
-    if ( $("#room_tabs").data('currentroom') === '') {
+    if ($("#room_tabs").data('currentroom') === '') {
       socket.emit('no rooms');
     }
     if (msg.substr(0, 5) === '/join') {
@@ -56,8 +58,8 @@ socket.on('connect', function() {
  */
 
 socket.on('pick username', function(name) {
-  $("#username").html("<p>"+name+"</p>");
- })
+  $("#username").html("<p>" + name + "</p>");
+})
 
 socket.on('username taken', function() {
   socket.emit('pick username', prompt('The name is already taken. choose another username.'));
@@ -91,7 +93,7 @@ socket.on('subscribe', function(room) {
   if (room === 'lobby') {
     $('#room_tabs').append('<div class="room" id= "' + room + '">' + room + '</div>');
   } else {
-    $('#room_tabs').append('<div class="room" id= "' + room + '">' + room + '<i id="'+room+'" class="exit fa fa-times"></i></div>');
+    $('#room_tabs').append('<div class="room" id= "' + room + '">' + room + '<i id="' + room + '" class="exit fa fa-times"></i></div>');
   }
 });
 
@@ -124,3 +126,7 @@ socket.on('message', function(data) {
   roomMessages[data.room].push(message);
   $('#messages').append(message);
 });
+
+
+//  var m = document.getElementById("messages");
+//m.scrollTop = m.scrollHeight;
