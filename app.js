@@ -6,6 +6,21 @@ var path = require('path');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+function filter(str) {
+  if (str) {
+    str = str.replace("<", "");
+    str = str.replace(">", "");
+    return str;
+  }
+}
+
+function filter_msg(msg) {
+  if (msg) {
+    msg = msg.replace("<", "&lt;");
+    msg = msg.replace(">", "&gt;");
+  }
+}
+
 var users = [];
 var port = process.env.PORT || 8080;
 
@@ -17,8 +32,8 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-server.listen(port);//, function() {
-  //console.log('listening on port ' + port);
+server.listen(port); //, function() {
+//console.log('listening on port ' + port);
 //});
 
 io.on('connection', function(socket) {
@@ -38,10 +53,9 @@ io.on('connection', function(socket) {
     if (!socket.rooms.indexOf('lobby') > -1) {
       socket.join('lobby');
     }
-    socket.nick = name;
-    console.log("NAME IS NOW "+socket.nick+" WHICH IS "+name);
+    socket.nick = filter(name);
     socket.emit('subscribe', 'lobby');
-    socket.emit('pick username', name);
+    socket.emit('pick username', socket.nick);
     socket.to('lobby').emit('user joined room', {
       nick: socket.nick,
       room: 'lobby'
@@ -70,10 +84,9 @@ io.on('connection', function(socket) {
     socket.emit('subscribe', room);
     if (socket.rooms.indexOf(room) < -1) {
       socket.join(room);
-      console.log('nick is '+socket.nick)
       socket.to(room).emit('user joined room', {
         nick: socket.nick,
-        room: room
+        room: filter(room)
       });
     }
   });
@@ -87,7 +100,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('change room', function(room) {
-    socket.emit('change room', room);
+    socket.emit('change room', filter(room));
   });
 
   //When the user sends a message.
@@ -98,12 +111,11 @@ io.on('connection', function(socket) {
     if (socket.rooms.length == 0) {
       socket.emit('no rooms');
     }
-    data.msg = data.msg.replace("<", "&lt;").replace(">", "&gt;");
-    data.nick = data.nick.replace("<", "&lt;").replace(">", "&gt;");
+
     var colour = md5(socket.nick).substr(0, 6);
     io.emit('message', {
       nick: socket.nick,
-      msg: data.msg,
+      msg: filter_msg(data.msg),
       room: data.room,
       colour: colour
     });
