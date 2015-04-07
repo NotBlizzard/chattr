@@ -126,7 +126,3 @@ socket.on('message', function(data) {
   roomMessages[data.room].push(message);
   $('#messages').append(message);
 });
-
-
-//  var m = document.getElementById("messages");
-//m.scrollTop = m.scrollHeight;

@@ -98,6 +98,7 @@ io.on('connection', function(socket) {
     if (socket.rooms.length == 0) {
       socket.emit('no rooms');
     }
+    data.msg = data.msg.replace("<", "&lt;").replace(">", "&gt;");
     var colour = md5(socket.nick).substr(0, 6);
     io.emit('message', {
       nick: socket.nick,
