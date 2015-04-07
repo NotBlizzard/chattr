@@ -1,11 +1,12 @@
 var socket = io();
 var roomMessages = {};
-var w = document.getElementById("room");
-w.scrollTop = w.scrollHeight;
+
+
 
 $(document).ready(function() {
-  $('#room').scrollTop = $("#room").scrollHeight;
 
+  var w = document.getElementById("room");
+  w.scrollTop = w.scrollHeight;
 
   $(document).on('click', '.room', function(event) {
     $('#room_tabs>div').removeClass('focus');
