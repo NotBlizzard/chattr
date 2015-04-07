@@ -18,6 +18,7 @@ function filter_msg(msg) {
   if (msg) {
     msg = msg.replace("<", "&lt;");
     msg = msg.replace(">", "&gt;");
+    return msg;
   }
 }
 
