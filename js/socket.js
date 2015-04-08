@@ -21,11 +21,10 @@ $(document).ready(function() {
       $('#send').click();
     }
   });
-
   $(document).on('click', '.exit', function(event) {
     $("#" + event.target.id).remove();
     socket.emit('unsubscribe', event.target.id);
-  })
+  });
 
   $('#send').click(function() {
     var msg = $('#message').val();
@@ -33,10 +32,43 @@ $(document).ready(function() {
     if ($("#room_tabs").data('currentroom') === '') {
       socket.emit('no rooms');
     }
-    if (msg.substr(0, 5) === '/join') {
-      var room = msg.split('/join ')[1];
+    if (msg.substr(0, 1) === '/') {
+      var cmd = msg.split('/')[1].split(' ')[0];
+      //TODO: put commands in seperate file.
+      /*switch (cmd) {
+        case 'join':
+          var room = msg.split('/join ')[1];
+          $("#message").val();
+          socket.emit('subscribe', room);
+          break;
+        case 'part':
+          var room = msg.split('/part ')[1];
+          $("#message").val();
+          if (room != 'lobby') {
+            socket.emit('unsubscribe', room);
+          }
+          break;
+        case 'help':
+          var msg = "Commands<br />" +
+            "/help - list commands<br />" +
+            "/join [room] - join room<br />" +
+            "/part [room] - leave room<br />";
+          socket.emit('message', {
+            msg: msg,
+            room: $('#room_tabs').data('currentroom')
+          })
+          break;
+        default:
+          socket.emit('message', {
+            msg: "not a valid command",
+            room: $('#room_tabs').data('currentroom')
+          })
+      }*/
+      socket.emit('message', {
+        msg: msg,
+        room: $('#room_tabs').data('currentroom')
+      });
       $('#message').val('');
-      socket.emit('subscribe', room);
     } else {
       $('#message').val('');
       socket.emit('message', {
@@ -95,7 +127,7 @@ socket.on('change room', function(room) {
 socket.on('subscribe', function(room) {
   $('#room_tabs').data('currentroom', room);
   if (room === 'lobby') {
-    $('#room_tabs').append('<div class="room" id= "' + room + '">' + room + '</div>');
+    $('#room_tabs').append('<div class="room focus" id= "' + room + '">' + room + '</div>');
   } else {
     $('#room_tabs').append('<div class="room" id= "' + room + '">' + room + '<i id="' + room + '" class="exit fa fa-times"></i></div>');
   }
@@ -105,6 +137,7 @@ socket.on('unsubscribe', function(room) {
   if ($("#room_tabs").data('currentroom') === room) {
     $('#room_tabs').data('currentroom', null);
   };
+  $("#" + room).remove();
 })
 
 socket.on('user joined room', function(data) {
@@ -129,4 +162,5 @@ socket.on('message', function(data) {
   roomMessages[data.room] = roomMessages[data.room] || [];
   roomMessages[data.room].push(message);
   $('#messages').append(message);
+
 });

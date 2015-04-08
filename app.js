@@ -1,10 +1,12 @@
 var express = require('express');
-var ColorHash = require('color-hash');
 var md5 = require("MD5");
 var app = express();
 var path = require('path');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+
+
+const MESSAGE_LENGTH_LIMIT = 140;
 
 function filter(str) {
   if (str) {
@@ -33,9 +35,9 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-server.listen(port); //, function() {
-//console.log('listening on port ' + port);
-//});
+server.listen(port, function() {
+  console.log('listening on port ' + port);
+});
 
 io.on('connection', function(socket) {
 
@@ -93,10 +95,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('unsubscribe', function(room) {
+    socket.emit('unsubscribe', room);
     socket.leave(room);
     socket.to(room).emit('user left room', {
       nick: socket.nick,
-      room: room
+      room: filter(room)
     });
   });
 
@@ -112,13 +115,50 @@ io.on('connection', function(socket) {
     if (socket.rooms.length == 0) {
       socket.emit('no rooms');
     }
+    if (data.msg.length > MESSAGE_LENGTH_LIMIT) {
+      socket.emit('message too long');
+    }
+    if (data.msg.substr(0, 1) === '/') {
+      var cmd = data.msg.split('/')[1].split(' ')[0];
 
-    var colour = md5(socket.nick).substr(0, 6);
-    io.emit('message', {
-      nick: socket.nick,
-      msg: filter_msg(data.msg),
-      room: data.room,
-      colour: colour
-    });
+      switch (cmd) {
+        case 'join':
+          var room = data.msg.split('/join ')[1];
+          socket.emit('subscribe', room);
+          break;
+        case 'part':
+          var room = data.msg.split('/part ')[1];
+          if (room != 'lobby') {
+            socket.emit('unsubscribe', room);
+          }
+          break;
+        case 'help':
+          var msg = "Commands:<br />" +
+            "/help - list commands<br />" +
+            "/join [room] - join room<br />" +
+            "/part [room] - leave room<br />";
+          socket.emit('message', {
+            nick: "HelpBot",
+            msg: msg,
+            room: data.room
+          })
+          break;
+        default:
+          socket.emit('message', {
+            msg: "not a valid command",
+            room: data.room
+          })
+      }
+    } else {
+      data.msg = filter_msg(data.msg);
+      var colour = md5(socket.nick).substr(0, 6);
+      io.emit('message', {
+        nick: socket.nick,
+        msg: data.msg,
+        room: data.room,
+        colour: colour,
+        cmd: data.cmd
+      });
+    }
   });
 });
