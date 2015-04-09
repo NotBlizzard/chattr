@@ -76,7 +76,7 @@ io.on('connection', function(socket) {
         socket.nick = filter(name);
 
     var oldname = socket.nick;
-    users.push(filter(socket.nick);
+    users.push(filter(socket.nick));
     if (!socket.rooms.indexOf('lobby') > -1) {
       socket.join('lobby');
     }
