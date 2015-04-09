@@ -70,7 +70,7 @@ io.on('connection', function(socket) {
   socket.on('change username', function(name) {
     if (name === null || !name || name.length === 0) {
       return socket.emit('no username');
-    } else if (users.indexOf(filter(name) > -1) {
+    } else if (users.indexOf(filter(name) > -1)) {
       socket.emit('username taken');
     }
         socket.nick = filter(name);
