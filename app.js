@@ -6,7 +6,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 
-const MESSAGE_LENGTH_LIMIT = 140;
+const MESSAGE_LENGTH_LIMIT = 50;
 
 function filter(str) {
   if (str) {
@@ -52,11 +52,12 @@ io.on('connection', function(socket) {
     } else if (users.indexOf(name.toLowerCase()) > -1) {
       socket.emit('username taken');
     }
-    users.push(name.toLowerCase());
+
+    socket.nick = filter(name);
+    users.push(socket.nick);
     if (!socket.rooms.indexOf('lobby') > -1) {
       socket.join('lobby');
     }
-    socket.nick = filter(name);
     socket.emit('subscribe', 'lobby');
     socket.emit('pick username', socket.nick);
     socket.to('lobby').emit('user joined room', {
@@ -65,6 +66,25 @@ io.on('connection', function(socket) {
     });
 
   });
+
+  socket.on('change username', function(name) {
+    if (name === null || !name || name.length === 0) {
+      return socket.emit('no username');
+    } else if (users.indexOf(filter(name) > -1) {
+      socket.emit('username taken');
+    }
+        socket.nick = filter(name);
+
+    var oldname = socket.nick;
+    users.push(filter(socket.nick);
+    if (!socket.rooms.indexOf('lobby') > -1) {
+      socket.join('lobby');
+    }
+    users.pop(socket.nick);
+    io.emit('user changed name', {old: oldname, current: socket.nick})
+
+
+  })
 
   socket.on('disconnect', function() {
     try {
@@ -87,7 +107,7 @@ io.on('connection', function(socket) {
     socket.emit('subscribe', room);
     if (socket.rooms.indexOf(room) < -1) {
       socket.join(room);
-      socket.to(room).emit('user joined room', {
+      io.to(room).emit('user joined room', {
         nick: socket.nick,
         room: filter(room)
       });
@@ -97,7 +117,7 @@ io.on('connection', function(socket) {
   socket.on('unsubscribe', function(room) {
     socket.emit('unsubscribe', room);
     socket.leave(room);
-    socket.to(room).emit('user left room', {
+    io.to(room).emit('user left room', {
       nick: socket.nick,
       room: filter(room)
     });

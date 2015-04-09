@@ -25,6 +25,9 @@ $(document).ready(function() {
     $("#" + event.target.id).remove();
     socket.emit('unsubscribe', event.target.id);
   });
+  $('#change_username').click(function() {
+    socket.emit('change username', prompt("What is your new username?"))
+  })
 
   $('#send').click(function() {
     var msg = $('#message').val();
@@ -129,7 +132,7 @@ socket.on('subscribe', function(room) {
   if (room === 'lobby') {
     $('#room_tabs').append('<div class="room focus" id= "' + room + '">' + room + '</div>');
   } else {
-    $('#room_tabs').append('<div class="room" id= "' + room + '">' + room + '<i id="' + room + '" class="exit fa fa-times"></i></div>');
+    $('#room_tabs').append('<br /><div class="room" id= "' + room + '">' + room + '<i id="' + room + '" class="exit fa fa-times"></i></div>');
   }
 });
 
@@ -141,18 +144,26 @@ socket.on('unsubscribe', function(room) {
 })
 
 socket.on('user joined room', function(data) {
-  var msg = "<p id='joinleave'>" + data.nick + " joined</p>";
+  var msg = "<p id='annoucement'>" + data.nick + " joined</p>";
   $('#messages').append(msg);
   roomMessages[data.room] = roomMessages[data.room] || [];
   roomMessages[data.room].push(msg);
 });
 
 socket.on('user left room', function(data) {
-  var msg = "<p id='joinleave'>" + data.nick + " left</p>";
+  var msg = "<p id='annoucement'>" + data.nick + " left</p>";
   $('#messages').append(msg);
   roomMessages[data.room] = roomMessages[dataroom] || [];
   roomMessages[data.room].push(msg);
 });
+
+socket.on('user changed name', function(data) {
+  var msg = "<p id='annoucement'>"+data.old+" is now "+data.current +"</p>";
+  $('#messages').append(msg);
+  $('#username').html('<p>'+data.current+'</p>');
+  roomMessages[data.room] = roomMessages[dataroom] || [];
+  roomMessages[data.room].push(msg);
+})
 
 /* When the user attempts to sends a message to a room.
  */

@@ -9,8 +9,9 @@ body {
 
 #room {
   border: transparent;
-  height: 500px;
-  width: 700px;
+  height: 90vh;
+  float: right;
+  width: 90%;
   position: relative;
   background-color: white;
   overflow: auto;
@@ -20,17 +21,25 @@ label {
   display: inline-block;
 }
 #chat {
-  width: 700px;
-  height: 500px; }
+  width: 100%;
+  position: relative;
+
+float:right;}
 
 #username {
-  color: white; }
+  color: white;
+bottom: 0;
+margin-left: 70px;
+margin-bottom: 10px;
+position: absolute;}
+
 
 input {
   font-family: 'Raleway', sans-serif; }
 
-#joinleave {
-  color: #2980b9; }
+#annoucement {
+  color: #bdc3c7;
+  font-style: italic; }
 
 #messages {
   text-align: left;
@@ -39,8 +48,16 @@ input {
 #title {
   color: white; }
 
-#send {
-  padding: 4px;
+footer {
+  color: white;
+}
+ #change_username, #send {
+  margin-top: 5px;
+  padding: 10px;
+  width: 10%;
+  height: 10%;
+  margin-right: 10px;
+  float: right;
   border: 1px solid #2980b9;
   background-color: #2980b9;
   color: white; }
@@ -60,7 +77,8 @@ input {
   cursor: pointer;
   width: auto;
   height: 20px;
-  float: left; }
+  float: right;
+  }
 
 .focus {
   border: 1px solid #2ecc71;
@@ -68,6 +86,8 @@ input {
   border-top: transparent; }
 
 input {
+  margin-top: 5px;
+  margin-left: 100px;
   border: transparent;
-  width: 50%;
-  height: 20px; }
+  width: 66%;
+  height: 30px; }
