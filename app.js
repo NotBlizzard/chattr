@@ -224,8 +224,8 @@ io.on('connection', function(socket) {
       if (messages.get(data.room) === undefined) {
         messages.set(data.room, []);
       }
-      messages.get(data.room).push(msg);
-      io.to('lobby').emit('message', {colour: colour, nick: socket.nick, msg: filter_msg(msg)});
+      messages.get(data.room).push(data.msg);
+      io.to('lobby').emit('message', {colour: colour, nick: socket.nick, msg: filter_msg(data.msg)});
     }
   });
 });
