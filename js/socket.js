@@ -118,6 +118,6 @@ socket.on('user changed name', function(data) {
 
 socket.on('message', function(data) {
   var m = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
-  $('#messages').append();
+  $('#messages').append(m);
 
 });
