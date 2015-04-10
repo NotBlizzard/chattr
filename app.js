@@ -92,7 +92,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('change username', function(data) {
-    name = filter(data.nick);
+    var name = filter(data.nick);
     if (name === null || !name || name.length === 0) {
       return socket.emit('username error', 'Your username can not be blank. choose another username.');
     } else if (users.has(name)) {
