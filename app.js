@@ -175,13 +175,13 @@ io.on('connection', function(socket) {
   //When the user sends a message.
   socket.on('message', function(data) {
     if (!socket.nick) {
-      socket.emit('no username');
+      return socket.emit('no username');
     }
     if (socket.rooms.length === 0) {
-      socket.emit('no rooms');
+      return socket.emit('no rooms');
     }
     if (data.msg.length > MESSAGE_LENGTH_LIMIT) {
-      socket.emit('message too long');
+      return socket.emit('message too long');
     }
     if (data.msg.substr(0, 1) === '/') {
       var cmd = data.msg.split('/')[1].split(' ')[0];
