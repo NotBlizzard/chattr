@@ -9,7 +9,7 @@ $(document).ready(function() {
     $('#room_tabs>li').removeClass('focus');
     $('#' + event.target.id).addClass('focus');
     socket.emit('change room', event.target.id);
-      });
+  });
 
   $('#message').keypress(function(e) {
     if (e.which === 13) {
@@ -21,8 +21,11 @@ $(document).ready(function() {
     socket.emit('unsubscribe', event.target.id);
   });
   $('#change_username').click(function() {
-    var newname =  prompt("What is your new username?")
-    socket.emit('change username', {nick: newname, room: $("#chat").data('room')})
+    var newname = prompt("What is your new username?")
+    socket.emit('change username', {
+      nick: newname,
+      room: $("#chat").data('room')
+    })
   })
 
   $('#send').click(function() {
@@ -37,7 +40,7 @@ $(document).ready(function() {
       room: $('#chat').data('room'),
       timestamp: moment().format("H:mm:ss")
     });
-});
+  });
 });
 
 /* When the user connects and disconnects.
@@ -51,7 +54,7 @@ socket.on('connect', function() {
  */
 
 socket.on('join successful', function(nick) {
-  $("#username").html("<b><p>" +nick + "</p></b>");
+  $("#username").html("<b><p>" + nick + "</p></b>");
 })
 
 socket.on('username error', function(err) {
@@ -96,22 +99,22 @@ socket.on('user joined room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " joined</p>";
   $('#messages').append(msg);
   $('#userlist').html('');
-  $("#userlist").append("<p>"+data.users.join('<br />')+"</p>");
+  $("#userlist").append("<p>" + data.users.join('<br />') + "</p>");
 
 });
 
 socket.on('user left room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " left</p>";
   $('#messages').append(msg);
-  $("#userlist").append("<p>"+data.users.join('<br />')+"</p>");
+  $("#userlist").append("<p>" + data.users.join('<br />') + "</p>");
 });
 
 socket.on('user changed name', function(data) {
-  var msg = "<p id='annoucement'>"+data.old+" is now "+data.current +"</p>";
+  var msg = "<p id='annoucement'>" + data.old + " is now " + data.current + "</p>";
   $('#messages').append(msg);
-  $('#username').html('<p>'+data.current+'</p>');
+  $('#username').html('<p>' + data.current + '</p>');
   $('#userlist').html('');
-  $("#userlist").append("<p>"+data.users.join("<br />")+"</p>");
+  $("#userlist").append("<p>" + data.users.join("<br />") + "</p>");
 })
 
 /* When the user attempts to sends a message to a room.
@@ -122,3 +125,7 @@ socket.on('message', function(data) {
   $('#messages').append(m);
 
 });
+
+socket.on('message error', function(err) {
+  alert(err);
+})

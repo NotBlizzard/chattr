@@ -178,10 +178,10 @@ io.on('connection', function(socket) {
       return socket.emit('no username');
     }
     if (socket.rooms.length === 0) {
-      return socket.emit('no rooms');
+      return socket.emit('message error', 'no rooms');
     }
     if (data.msg.length > MESSAGE_LENGTH_LIMIT) {
-      return socket.emit('message too long');
+      return socket.emit('message error', 'message too long');
     }
     if (data.msg.substr(0, 1) === '/') {
       var cmd = data.msg.split('/')[1].split(' ')[0];
@@ -224,7 +224,7 @@ io.on('connection', function(socket) {
       if (messages.get(data.room) === undefined) {
         messages.set(data.room, []);
       }
-      var m = '<p>[' + data.timestamp + ']<span style="color:#' + data.colour + ';"><strong>' + socket.nick + '</strong></span>: ' + data.msg + '</p>';
+      var m = '<p>[' + data.timestamp + '] <span style="color:#' + data.colour + ';"><strong>' + socket.nick + '</strong></span>: ' + data.msg + '</p>';
             messages.get(data.room).push(m);
 
       io.to('lobby').emit('message', {
