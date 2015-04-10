@@ -94,6 +94,7 @@ socket.on('unsubscribe', function(room) {
 socket.on('user joined room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " joined</p>";
   $('#messages').append(msg);
+  $('#userlist').html('');
   $("#userlist").append("<p>"+data.users.join('<br />')+"</p>");
 
 });
