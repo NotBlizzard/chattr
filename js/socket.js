@@ -94,19 +94,22 @@ socket.on('unsubscribe', function(room) {
 socket.on('user joined room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " joined</p>";
   $('#messages').append(msg);
-  $("#userlist").append("<p>"+data.nick+"</p>");
+  $("#userlist").append("<p>"+data.users.join('<br />')+"</p>");
 
 });
 
 socket.on('user left room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " left</p>";
   $('#messages').append(msg);
+  $("#userlist").append("<p>"+data.users.join('<br />')+"</p>");
 });
 
 socket.on('user changed name', function(data) {
   var msg = "<p id='annoucement'>"+data.old+" is now "+data.current +"</p>";
   $('#messages').append(msg);
-  $('#username').html('<p>'+data.current+'</p>')
+  $('#username').html('<p>'+data.current+'</p>');
+  $('#userlist').html('');
+  $("#userlist").append("<p>"+data.users.join("<br />")+"</p>");
 })
 
 /* When the user attempts to sends a message to a room.

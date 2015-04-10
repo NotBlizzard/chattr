@@ -19,6 +19,8 @@ function filter(str) {
   }
 }
 
+
+
 function filter_msg(msg) {
   if (msg) {
     msg = msg.replace("<", "&lt;");
@@ -45,6 +47,14 @@ server.listen(port, function() {
 
 io.on('connection', function(socket) {
 
+  function get_users(room) {
+    var u = [];
+    for (var id in io.sockets.adapter.rooms[room]) {
+      u.push(io.sockets.connected[id]);
+    }
+    return u;
+  }
+
   //When the user first connects.
   //They will pick a name, then join lobby.
   //If their name doesn't meet criteria, then the user
@@ -57,7 +67,7 @@ io.on('connection', function(socket) {
     } else if (users.has(name)) {
       return socket.emit('username error', 'The name is already taken. choose another username.');
     } else if (name.length > USER_NAME_LENGTH_LIMIT) {
-      return socket.emit('username error', io.sockets.client('lobby'));
+      return socket.emit('username error', 'name too long. choose another username.');
     }
     socket.nick = name;
     socket.emit('subscribe', 'lobby');
@@ -66,10 +76,17 @@ io.on('connection', function(socket) {
     }
     socket.join('lobby');
     users.get('lobby').push(socket.nick);
-    socket.emit('join successful', socket.nick );
+    socket.emit('join successful', socket.nick);
+    var u = [];
+      var clients = io.sockets.adapter.rooms['lobby'];
+      for (var id in clients) {
+        u.push(io.sockets.connected[id].nick);
+      }
+
     io.to('lobby').emit('user joined room', {
       nick: socket.nick,
-      room: 'lobby'
+      room: 'lobby',
+      users: u
     });
 
   });
@@ -84,9 +101,16 @@ io.on('connection', function(socket) {
     socket.nick = filter(data.nick);
 
     users.get(data.room).pop(oldname);
+    var u = [];
+      var clients = io.sockets.adapter.rooms['lobby'];
+      for (var id in clients) {
+        u.push(io.sockets.connected[id].nick);
+      }
+
     io.emit('user changed name', {
       old: oldname,
-      current: socket.nick
+      current: socket.nick,
+      users: u
     })
 
 
@@ -95,7 +119,13 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function() {
 
     socket.rooms.forEach(function(room) {
+      var u = [];
+      var clients = io.sockets.adapter.rooms['lobby'];
+      for (var id in clients) {
+        u.push(io.sockets.connected[id].nick);
+      }
       users.get(room).pop(socket.nick);
+      socket.leave(room);
       socket.to(room).emit('user left room', {
         nick: socket.nick,
         room: room
