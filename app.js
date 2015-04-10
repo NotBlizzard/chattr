@@ -221,12 +221,11 @@ io.on('connection', function(socket) {
       }
     } else {
       var colour = md5(socket.nick).substr(0, 6);
-      var msg = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + colour + ';"><strong>' + socket.nick + '</strong></span>: ' + filter_msg(data.msg) + '</p>';
       if (messages.get(data.room) === undefined) {
         messages.set(data.room, []);
       }
       messages.get(data.room).push(msg);
-      io.to('lobby').emit('message', msg);
+      io.to('lobby').emit('message', {colour: colour, nick: socket.nick, msg: filter_msg(msg)});
     }
   });
 });

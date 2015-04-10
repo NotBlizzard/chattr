@@ -116,7 +116,8 @@ socket.on('user changed name', function(data) {
 /* When the user attempts to sends a message to a room.
  */
 
-socket.on('message', function(msg) {
-  $('#messages').append(msg);
+socket.on('message', function(data) {
+  var m = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
+  $('#messages').append();
 
 });
