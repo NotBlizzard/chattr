@@ -1,12 +1,15 @@
 var express = require('express');
+var shim = require('es6-shim');
 var md5 = require("MD5");
+var moment = require('moment');
 var app = express();
 var path = require('path');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 
-const MESSAGE_LENGTH_LIMIT = 50;
+const MESSAGE_LENGTH_LIMIT = 140;
+const USER_NAME_LENGTH_LIMIT = 19;
 
 function filter(str) {
   if (str) {
@@ -24,7 +27,8 @@ function filter_msg(msg) {
   }
 }
 
-var users = [];
+var users = new Map;
+var messages = new Map;
 var port = process.env.PORT || 8080;
 
 app.use('/js', express.static(path.join(__dirname + '/js')));
@@ -47,57 +51,56 @@ io.on('connection', function(socket) {
   //will get asked to pick another name.
 
   socket.on('pick username', function(name) {
+    name = filter(name);
     if (name === null || !name || name.length === 0) {
-      return socket.emit('no username');
-    } else if (users.indexOf(name.toLowerCase()) > -1) {
-      socket.emit('username taken');
+      return socket.emit('username error', 'Your username can not be blank. choose another username.');
+    } else if (users.has(name)) {
+      return socket.emit('username error', 'The name is already taken. choose another username.');
+    } else if (name.length > USER_NAME_LENGTH_LIMIT) {
+      return socket.emit('username error', 'The name you chose is too long. choose another username.');
     }
-
-    socket.nick = filter(name);
-    users.push(socket.nick);
-    if (!socket.rooms.indexOf('lobby') > -1) {
-      socket.join('lobby');
-    }
+    socket.nick = name;
     socket.emit('subscribe', 'lobby');
-    socket.emit('pick username', socket.nick);
-    socket.to('lobby').emit('user joined room', {
+    if (users.get('lobby') === undefined) {
+      users.set('lobby', []);
+    }
+    socket.join('lobby');
+    users.get('lobby').push(socket.nick);
+    socket.emit('join successful', socket.nick );
+    io.to('lobby').emit('user joined room', {
       nick: socket.nick,
       room: 'lobby'
     });
 
   });
 
-  socket.on('change username', function(name) {
-    if (name === null || !name || name.length === 0) {
+  socket.on('change username', function(data) {
+    if (data.nick === null || !data.nick || data.nick.length === 0) {
       return socket.emit('no username');
-    } else if (users.indexOf(filter(name) > -1)) {
+    } else if (users.get('name') === undefined) {
       socket.emit('username taken');
     }
-        socket.nick = filter(name);
-
     var oldname = socket.nick;
-    users.push(filter(socket.nick));
-    if (!socket.rooms.indexOf('lobby') > -1) {
-      socket.join('lobby');
-    }
-    users.pop(socket.nick);
-    io.emit('user changed name', {old: oldname, current: socket.nick})
+    socket.nick = filter(data.nick);
+
+    users.get(data.room).pop(oldname);
+    io.emit('user changed name', {
+      old: oldname,
+      current: socket.nick
+    })
 
 
   })
 
   socket.on('disconnect', function() {
-    try {
-      users.pop(socket.nick.toLowerCase());
-    } catch (e) {
-      //the user never picked a name, and disconnected.
-    }
-    for (var i = 0; i < socket.rooms.length; i++) {
+
+    socket.rooms.forEach(function(room) {
+      users.get(room).pop(socket.nick);
       socket.to(room).emit('user left room', {
         nick: socket.nick,
-        room: socket.rooms[i]
+        room: room
       })
-    }
+    })
   });
 
 
@@ -124,7 +127,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('change room', function(room) {
-    socket.emit('change room', filter(room));
+    socket.emit('change room', {
+      room: filter(room),
+      msgs: messages.get(room),
+      users: users.get(room)
+    });
   });
 
   //When the user sends a message.
@@ -132,7 +139,7 @@ io.on('connection', function(socket) {
     if (!socket.nick) {
       socket.emit('no username');
     }
-    if (socket.rooms.length == 0) {
+    if (socket.rooms.length === 0) {
       socket.emit('no rooms');
     }
     if (data.msg.length > MESSAGE_LENGTH_LIMIT) {
@@ -145,6 +152,11 @@ io.on('connection', function(socket) {
         case 'join':
           var room = data.msg.split('/join ')[1];
           socket.emit('subscribe', room);
+          io.to(room).emit('user joined room', {
+            nick: socket.nick,
+            room: room
+          });
+
           break;
         case 'part':
           var room = data.msg.split('/part ')[1];
@@ -170,15 +182,13 @@ io.on('connection', function(socket) {
           })
       }
     } else {
-      data.msg = filter_msg(data.msg);
       var colour = md5(socket.nick).substr(0, 6);
-      io.emit('message', {
-        nick: socket.nick,
-        msg: data.msg,
-        room: data.room,
-        colour: colour,
-        cmd: data.cmd
-      });
+      var msg = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + colour + ';"><strong>' + socket.nick + '</strong></span>: ' + filter_msg(data.msg) + '</p>';
+      if (messages.get(data.room) === undefined) {
+        messages.set(data.room, []);
+      }
+      messages.get(data.room).push(msg);
+      io.to('lobby').emit('message', msg);
     }
   });
 });

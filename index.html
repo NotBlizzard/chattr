@@ -3,29 +3,23 @@
 <head>
   <script src="https://cdn.socket.io/socket.io-1.3.4.js"></script>
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
   <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
   <link rel='stylesheet' href='/css/custom.css' />
   <script src="/js/socket.js"></script>
   <title>Chattr</title>
 </head>
 <body>
-
-
   <div id='chat'>
-
     <div id='room'>
-      <ul id='messages'></ul>
-
+      <div id='userlist'></div>
+      <div id='messages'></div>
     </div>
-     <div id='room_tabs'></div><br />
-
+    <ul id='room_tabs'></ul><br />
     <center>
-    <div id='username'></div>
-    <input id='message'></input>
-        <button id='change_username'>Change Username</button>
-
-    <button id='send'>Send</button>
+      <div id='username'></div>
+      <input id='message' autofocus></input>
+      <button id='change_username'>Change Username</button>
+      <button id='send'>Send</button>
     </center>
   </div>
   <footer>Chattr</footer>
