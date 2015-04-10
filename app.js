@@ -57,7 +57,7 @@ io.on('connection', function(socket) {
     } else if (users.has(name)) {
       return socket.emit('username error', 'The name is already taken. choose another username.');
     } else if (name.length > USER_NAME_LENGTH_LIMIT) {
-      return socket.emit('username error', 'The name you chose is too long. choose another username.');
+      return socket.emit('username error', io.sockets.client('lobby'));
     }
     socket.nick = name;
     socket.emit('subscribe', 'lobby');
