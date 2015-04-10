@@ -78,10 +78,10 @@ io.on('connection', function(socket) {
     users.get('lobby').push(socket.nick);
     socket.emit('join successful', socket.nick);
     var u = [];
-      var clients = io.sockets.adapter.rooms['lobby'];
-      for (var id in clients) {
-        u.push(io.sockets.connected[id].nick);
-      }
+    var clients = io.sockets.adapter.rooms['lobby'];
+    for (var id in clients) {
+      u.push(io.sockets.connected[id].nick);
+    }
 
     io.to('lobby').emit('user joined room', {
       nick: socket.nick,
@@ -105,10 +105,10 @@ io.on('connection', function(socket) {
 
     users.get(data.room).pop(oldname);
     var u = [];
-      var clients = io.sockets.adapter.rooms['lobby'];
-      for (var id in clients) {
-        u.push(io.sockets.connected[id].nick);
-      }
+    var clients = io.sockets.adapter.rooms['lobby'];
+    for (var id in clients) {
+      u.push(io.sockets.connected[id].nick);
+    }
 
     io.emit('user changed name', {
       old: oldname,
@@ -161,10 +161,10 @@ io.on('connection', function(socket) {
 
   socket.on('change room', function(room) {
     var u = [];
-      var clients = io.sockets.adapter.rooms['lobby'];
-      for (var id in clients) {
-        u.push(io.sockets.connected[id].nick);
-      }
+    var clients = io.sockets.adapter.rooms['lobby'];
+    for (var id in clients) {
+      u.push(io.sockets.connected[id].nick);
+    }
     socket.emit('change room', {
       room: filter(room),
       msgs: messages.get(room),
@@ -224,8 +224,15 @@ io.on('connection', function(socket) {
       if (messages.get(data.room) === undefined) {
         messages.set(data.room, []);
       }
-      messages.get(data.room).push(data.msg);
-      io.to('lobby').emit('message', {colour: colour, nick: socket.nick, msg: filter_msg(data.msg)});
+      var m = '<p>[' + data.timestamp + ']<span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
+            messages.get(data.room).push(m);
+
+      io.to('lobby').emit('message', {
+        colour: colour,
+        nick: socket.nick,
+        msg: filter_msg(data.msg),
+        timestamp: data.timestamp
+      });
     }
   });
 });

@@ -34,7 +34,8 @@ $(document).ready(function() {
     $('#message').val('');
     socket.emit('message', {
       msg: msg,
-      room: $('#chat').data('room')
+      room: $('#chat').data('room'),
+      timestamp: moment().format("H:mm:ss")
     });
 });
 });
@@ -117,7 +118,7 @@ socket.on('user changed name', function(data) {
  */
 
 socket.on('message', function(data) {
-  var m = '<p>[' + moment().format("H:mm:ss") + '] <span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
+  var m = '<p>[' + data.timestamp + '] <span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
   $('#messages').append(m);
 
 });
