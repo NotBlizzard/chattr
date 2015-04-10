@@ -160,10 +160,15 @@ io.on('connection', function(socket) {
   });
 
   socket.on('change room', function(room) {
+    var u = [];
+      var clients = io.sockets.adapter.rooms['lobby'];
+      for (var id in clients) {
+        u.push(io.sockets.connected[id].nick);
+      }
     socket.emit('change room', {
       room: filter(room),
       msgs: messages.get(room),
-      users: users.get(room)
+      users: u
     });
   });
 

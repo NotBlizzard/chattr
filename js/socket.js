@@ -65,7 +65,7 @@ socket.on('change room', function(data) {
   $("#userlist").html('');
   $('#chat').data('room', data.room)
   $('#messages').append(data.msgs);
-  $('#userlist').append(data.users+"");
+  $('#userlist').append(data.users.join('<br />'));
 });
 
 /* When the user either

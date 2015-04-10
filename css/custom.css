@@ -34,17 +34,16 @@ label {
   width: 100%;
   position: relative;
 
-float:right;}
+float:right;
+}
 
 #username {
   color: white;
 bottom: 0;
 margin-bottom: 10px;
+margin-left: 40px;
 position: absolute;}
 
-
-input {
-  font-family: 'Raleway', sans-serif; }
 
 #annoucement {
   color: #bdc3c7;
@@ -60,6 +59,7 @@ input {
 
 footer {
   color: white;
+  font-style: italic;
 }
  #change_username, #send {
   margin-top: 5px;
@@ -101,6 +101,7 @@ footer {
   border-top: transparent; }
 
 input {
+  font-family: 'Raleway', sans-serif;
   margin-top: 5px;
   margin-left: 100px;
   border: transparent;
