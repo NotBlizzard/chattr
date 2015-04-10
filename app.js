@@ -224,7 +224,7 @@ io.on('connection', function(socket) {
       if (messages.get(data.room) === undefined) {
         messages.set(data.room, []);
       }
-      var m = '<p>[' + data.timestamp + '] <span style="color:#' + data.colour + ';"><strong>' + socket.nick + '</strong></span>: ' + data.msg + '</p>';
+      var m = '<p>[' + data.timestamp + '] <span style="color:#' + colour + ';"><strong>' + socket.nick + '</strong></span>: ' + data.msg + '</p>';
             messages.get(data.room).push(m);
 
       io.to('lobby').emit('message', {
