@@ -92,10 +92,13 @@ io.on('connection', function(socket) {
   });
 
   socket.on('change username', function(data) {
-    if (data.nick === null || !data.nick || data.nick.length === 0) {
-      return socket.emit('no username');
-    } else if (users.get('name') === undefined) {
-      socket.emit('username taken');
+    name = filter(data.nick);
+    if (name === null || !name || name.length === 0) {
+      return socket.emit('username error', 'Your username can not be blank. choose another username.');
+    } else if (users.has(name)) {
+      return socket.emit('username error', 'The name is already taken. choose another username.');
+    } else if (name.length > USER_NAME_LENGTH_LIMIT) {
+      return socket.emit('username error', 'name too long. choose another username.');
     }
     var oldname = socket.nick;
     socket.nick = filter(data.nick);
