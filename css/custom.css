@@ -1,11 +1,11 @@
-@import url("http://fonts.googleapis.com/css?family=Open+Sans");
+@import url("http://fonts.googleapis.com/css?family=Roboto");
 * {
   padding: 0;
   margin: 0; }
 
 body {
   background-color: #27ae60;
-  font-family: 'Open Sans', sans-serif; }
+  font-family: 'Roboto', sans-serif; }
 
 #room {
   border: transparent;
@@ -24,6 +24,10 @@ label {
   display: inline-block;
 }
 #userlist {
+ position: fixed;
+ right: 0;
+ font-weight: bold;
+ position: fixed;
   background-color: white;
   float: right;
   width: 10%;

@@ -127,7 +127,7 @@ io.on('connection', function(socket) {
       }
       users.get(room).pop(socket.nick);
       socket.leave(room);
-      socket.to(room).emit('user left room', {
+      io.to(room).emit('user left room', {
         nick: socket.nick,
         room: room
       })
@@ -141,8 +141,14 @@ io.on('connection', function(socket) {
     socket.emit('subscribe', room);
     if (socket.rooms.indexOf(room) < -1) {
       socket.join(room);
+      var u = [];
+      var clients = io.sockets.adapter.rooms[room];
+      for (var id in clients) {
+        u.push(io.sockets.connected[id].nick);
+      }
+
       io.to(room).emit('user joined room', {
-        nick: socket.nick,
+        users: u,
         room: filter(room)
       });
     }
@@ -151,8 +157,13 @@ io.on('connection', function(socket) {
   socket.on('unsubscribe', function(room) {
     socket.emit('unsubscribe', room);
     socket.leave(room);
+    var u = [];
+    var clients = io.sockets.adapter.rooms[room];
+    for (var id in clients) {
+      u.push(io.sockets.connected[id].nick);
+    }
     io.to(room).emit('user left room', {
-      nick: socket.nick,
+      users: u,
       room: filter(room)
     });
   });

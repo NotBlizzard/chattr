@@ -95,14 +95,19 @@ socket.on('user joined room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " joined</p>";
   $('#messages').append(msg);
   $('#userlist').html('');
-  $("#userlist").append("<p>" + data.users.join('<br />') + "</p>");
-
+  data.users.forEach(function(name) {
+    var colour = md5(name).substr(0, 6);
+    $("#userlist").append("<p style=\"color:#" + colour + ";\">" + name + "</p>");
+  });
 });
 
 socket.on('user left room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " left</p>";
   $('#messages').append(msg);
-  $("#userlist").append("<p>" + data.users.join('<br />') + "</p>");
+  data.users.forEach(function(name) {
+    var colour = md5(name).substr(0, 6);
+    $("#userlist").append("<p style=\"color:#" + colour + ";\">" + name + "</p>");
+  });
 });
 
 socket.on('user changed name', function(data) {
@@ -110,13 +115,19 @@ socket.on('user changed name', function(data) {
   $('#messages').append(msg);
   $('#username').html('<p>' + data.current + '</p>');
   $('#userlist').html('');
-  $("#userlist").append("<p>" + data.users.join("<br />") + "</p>");
-})
+  data.users.forEach(function(name) {
+    var colour = md5(name).substr(0, 6);
+    $("#userlist").append("<p style=\"color:#" + colour + ";\">" + name + "</p>");
+  });
+});
 
 /* When the user attempts to sends a message to a room.
  */
 
 socket.on('message', function(data) {
+  var w = document.getElementById("room");
+  w.scrollTop = w.scrollHeight;
+
   var m = '<p>[' + data.timestamp + '] <span style="color:#' + data.colour + ';"><strong>' + data.nick + '</strong></span>: ' + data.msg + '</p>';
   $('#messages').append(m);
 
@@ -124,4 +135,4 @@ socket.on('message', function(data) {
 
 socket.on('message error', function(err) {
   alert(err);
-})
+});
