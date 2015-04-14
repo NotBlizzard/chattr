@@ -1,9 +1,9 @@
 var express = require('express');
-var shim = require('es6-shim');
-var md5 = require("MD5");
 var moment = require('moment');
-var app = express();
+var shim = require('es6-shim');
 var path = require('path');
+var md5 = require("MD5");
+var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
@@ -225,7 +225,7 @@ io.on('connection', function(socket) {
         messages.set(data.room, []);
       }
       var m = '<p>[' + data.timestamp + '] <span style="color:#' + colour + ';"><strong>' + socket.nick + '</strong></span>: ' + data.msg + '</p>';
-            messages.get(data.room).push(m);
+      messages.get(data.room).push(m);
 
       io.to('lobby').emit('message', {
         colour: colour,

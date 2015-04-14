@@ -5,4 +5,4 @@ gulp.task('lint', function() {
   return gulp.src(['./app.js', 'js/socket.js'])
     .pipe(jshint())
     .pipe(jshint.reporter())
-})
+});
