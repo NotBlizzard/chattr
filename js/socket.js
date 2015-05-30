@@ -1,6 +1,7 @@
 var socket = io();
 
 $(document).ready(function() {
+  window.current_room = 'lobby';
   $(document).on('click', '.room', function(event) {
     $('#room_tabs>li').removeClass('focus');
     $('#' + event.target.id).addClass('focus');
