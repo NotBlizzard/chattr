@@ -4,7 +4,7 @@
   margin: 0; }
 
 body {
-  background-color: #27ae60;
+  background-color: #2c3e50;
   font-family: 'Roboto', sans-serif; }
 
 #room {
@@ -57,6 +57,7 @@ position: absolute;}
   text-align: left;
   overflow: auto; }
   word-wrap: break-word;
+}
 
 #title {
   color: white; }
@@ -72,8 +73,8 @@ footer {
   height: 10%;
   margin-right: 10px;
   float: right;
-  border: 1px solid #2ecc71;
-  background-color: #2ecc71;
+  border: 1px solid #34495e;
+  background-color: #34495e;
   color: white;
 }
 
@@ -85,14 +86,14 @@ footer {
 }
 
 .room {
-  background-color: #27ae60;
+  background-color: #2980b9;
   color: white;
   border-top: transparent;
   cursor: pointer;
   width: 9.8%;
   float: right;
   position: relative;
-  border-bottom: 1px solid #2ecc71;
+  border-bottom: 1px solid #3498db;
 
   list-style-type: none;
 }
@@ -100,10 +101,13 @@ footer {
 
 .focus {
   border: 1px solid #2ecc71;
-  background-color: #2ecc71;
+  background-color: #3498db;
   border: none;
   border-top: transparent; }
-
+.exit {
+  float: right;
+  margin-right: 5px;
+}
 input {
   font-family: 'Raleway', sans-serif;
   margin-top: 5px;

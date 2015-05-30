@@ -6,7 +6,7 @@ var md5 = require("MD5");
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-
+var marked = require('marked');
 
 const MESSAGE_LENGTH_LIMIT = 140;
 const USER_NAME_LENGTH_LIMIT = 19;
@@ -21,8 +21,8 @@ function filter(str) {
 
 function filter_msg(msg) {
   if (msg) {
-    msg = msg.replace("<", "&lt;");
-    msg = msg.replace(">", "&gt;");
+    msg = msg.replace("<script>", "&lt;script&gt;");
+    msg = msg.replace("</script>", "&lt;/script&gt;");
     return msg;
   }
 }
@@ -80,6 +80,10 @@ io.on('connection', function(socket) {
     for (var id in clients) {
       u.push(io.sockets.connected[id].nick);
     }
+    if (messages.get('lobby') === undefined) {
+      messages.set('lobby', []);
+    }
+    messages.get('lobby').push('<p id="annoucement">' + socket.nick + ' joined.</p>');
 
     io.to('lobby').emit('user joined room', {
       nick: socket.nick,
@@ -138,23 +142,31 @@ io.on('connection', function(socket) {
   //When the user joins or leaves a room.
   //Also if the user switches rooms.
   socket.on('subscribe', function(room) {
+    room = room.toLowerCase();
+    socket.join(room);
     socket.emit('subscribe', room);
-    if (socket.rooms.indexOf(room) < -1) {
-      socket.join(room);
-      var u = [];
-      var clients = io.sockets.adapter.rooms[room];
-      for (var id in clients) {
-        u.push(io.sockets.connected[id].nick);
-      }
-
-      io.to(room).emit('user joined room', {
-        users: u,
-        room: filter(room)
-      });
+    /*if (socket.rooms.indexOf(room) > -1) {
+      return false;
+    } */
+    var u = [];
+    var clients = io.sockets.adapter.rooms[room];
+    for (var id in clients) {
+      u.push(io.sockets.connected[id].nick);
     }
+    if (messages.get(room) === undefined) {
+      messages.set(room, []);
+    }
+    messages.get(room).push('<p id="annoucement">' + socket.nick + ' joined.</p>');
+    io.to(room).emit('user joined room', {
+      nick: socket.nick,
+      users: u,
+      room: filter(room)
+    });
+
   });
 
   socket.on('unsubscribe', function(room) {
+    room = room.toLowerCase();
     socket.emit('unsubscribe', room);
     socket.leave(room);
     var u = [];
@@ -169,8 +181,9 @@ io.on('connection', function(socket) {
   });
 
   socket.on('change room', function(room) {
+    room = room.toLowerCase();
     var u = [];
-    var clients = io.sockets.adapter.rooms['lobby'];
+    var clients = io.sockets.adapter.rooms[room];
     for (var id in clients) {
       u.push(io.sockets.connected[id].nick);
     }
@@ -197,17 +210,33 @@ io.on('connection', function(socket) {
 
       switch (cmd) {
         case 'join':
-          var room = data.msg.split('/join ')[1];
+          var room = data.msg.split('/join ')[1].toLowerCase();
+          socket.join(room);
+          var u = [];
+          var clients = io.sockets.adapter.rooms[room];
+          for (var id in clients) {
+            u.push(io.sockets.connected[id].nick);
+          }
+          if (messages.get(room) === undefined) {
+            messages.set(room, []);
+          }
+          messages.get(room).push('<p id="annoucement">' + socket.nick + ' joined.</p>');
           socket.emit('subscribe', room);
           io.to(room).emit('user joined room', {
             nick: socket.nick,
-            room: room
+            room: room,
+            users: u
           });
 
           break;
         case 'part':
           var room = data.msg.split('/part ')[1];
           if (room != 'lobby') {
+            if (messages.get(room) === undefined) {
+              messages.set(room, []);
+            }
+            messages.get(room).push('<p id="annoucement">' + socket.nick + ' left.</p>');
+            socket.leave(room);
             socket.emit('unsubscribe', room);
           }
           break;
@@ -233,6 +262,8 @@ io.on('connection', function(socket) {
       if (messages.get(data.room) === undefined) {
         messages.set(data.room, []);
       }
+      data.room = data.room.toLowerCase();
+      data.msg = marked(data.msg).replace('<p>', '');
       var m = '<p>[' + data.timestamp + '] <span style="color:#' + colour + ';"><strong>' + socket.nick + '</strong></span>: ' + data.msg + '</p>';
       messages.get(data.room).push(m);
 

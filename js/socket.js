@@ -4,6 +4,7 @@ $(document).ready(function() {
   $(document).on('click', '.room', function(event) {
     $('#room_tabs>li').removeClass('focus');
     $('#' + event.target.id).addClass('focus');
+    window.current_room = event.target.id;
     socket.emit('change room', event.target.id);
   });
 
@@ -65,7 +66,10 @@ socket.on('change room', function(data) {
   $("#userlist").html('');
   $('#chat').data('room', data.room)
   $('#messages').append(data.msgs);
-  $('#userlist').append(data.users.join('<br />'));
+  data.users.forEach(function(name) {
+    var colour = md5(name).substr(0, 6);
+    $("#userlist").append("<p style=\"color:#" + colour + ";\">" + name + "</p>");
+  });
 });
 
 /* When the user either
@@ -93,17 +97,20 @@ socket.on('unsubscribe', function(room) {
 
 socket.on('user joined room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " joined</p>";
-  $('#messages').append(msg);
-  $('#userlist').html('');
-  data.users.forEach(function(name) {
-    var colour = md5(name).substr(0, 6);
-    $("#userlist").append("<p style=\"color:#" + colour + ";\">" + name + "</p>");
-  });
+  if (window.current_room.toLowerCase() === data.room.toLowerCase()) {
+    $('#messages').append(msg);
+    $('#userlist').html('');
+    data.users.forEach(function(name) {
+      var colour = md5(name).substr(0, 6);
+      $("#userlist").append("<p style=\"color:#" + colour + ";\">" + name + "</p>");
+    });
+  }
 });
 
 socket.on('user left room', function(data) {
   var msg = "<p id='annoucement'>" + data.nick + " left</p>";
   $('#messages').append(msg);
+  $("#userlist").html('');
   data.users.forEach(function(name) {
     var colour = md5(name).substr(0, 6);
     $("#userlist").append("<p style=\"color:#" + colour + ";\">" + name + "</p>");
