@@ -31,7 +31,7 @@ var users = new Map;
 var messages = new Map;
 var port = process.env.PORT || 8080;
 
-app.use('/js', express.static(path.join(__dirname + '/js')));
+app.use('/build', express.static(path.join(__dirname + '/js')));
 app.use('/css', express.static(path.join(__dirname + '/css')));
 
 
